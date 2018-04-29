@@ -10,10 +10,10 @@ namespace flickr.uploader
         [Option("apisecret", Required = true, HelpText = "The Flickr api secret")]
         public string ApiSecret { get; set; }
 
-        [Option(Required = true, HelpText = "The folder to parse and to upload pictures")]
+        [Option("folder", Required = true, HelpText = "The folder to parse and to upload pictures")]
         public string PictureLocalFolder { get; set; }
 
-        [Option(Required = true, HelpText = "The album name to upload the pictures.")]
-        public string Album { get; set; }
+        [Option("album", Required = true, HelpText = "The album name to upload the pictures.")]
+        public string PhotoSetId { get; set; }
     }
 }

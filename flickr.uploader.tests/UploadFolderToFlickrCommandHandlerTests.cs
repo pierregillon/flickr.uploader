@@ -11,7 +11,7 @@ namespace flickr.uploader.tests
                 ApiKey = "a023233ad75a2e7ae38a1b1aa92ff751",
                 ApiSecret = "abd048b37b9e44f9",
                 PictureLocalFolder  = "Resources/",
-                Album = "test"
+                PhotoSetId = "test"
             };
 
             var handler = new UploadFolderToFlickrCommandHandler(new FlickrToken());
