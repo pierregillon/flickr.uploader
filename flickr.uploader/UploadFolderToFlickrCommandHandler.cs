@@ -21,25 +21,51 @@ namespace flickr.uploader
             var flickr = GetAuthentifiedFlickrClient(command.ApiKey, command.ApiSecret);
             flickr.OnUploadProgress += (sender, args) => {
                 if (args.UploadComplete) {
-                    Console.Write("[DONE]");
-                }
-            };
-            var album = flickr.PhotosetsGetPhotos(command.PhotoSetId);
-            var pictures = Directory.GetFiles(command.PictureLocalFolder, "*.jpg", SearchOption.AllDirectories);
-            foreach (var picture in pictures) {
-                var photoTitle = Path.GetFileName(picture);
-                if (album.Any(x => x.Title == photoTitle) == false) {
-                    Console.Write($"* Photo '{photoTitle}' missing. Uploading ... ");
-                    var photoId = flickr.UploadPicture(picture, photoTitle, null, null, false, false, false);
-                    Console.Write(" Adding in album ... ");
-                    flickr.PhotosetsAddPhoto(command.PhotoSetId, photoId);
-                    Console.WriteLine("[DONE]");
+                    var done = "[DONE]";
+                    Console.Write(done.PadRight(30));
+                    if (Console.CursorLeft - (30 - done.Length) > 0) {
+                        Console.SetCursorPosition(Console.CursorLeft - (30 - done.Length), Console.CursorTop);
+                    }
                 }
                 else {
-                    Console.WriteLine($"* Photo '{photoTitle}' already exists in the album '{album.Title}'.");
+                    var format = $"{args.ProcessPercentage}% ({args.BytesSent} on {args.TotalBytesToSend})";
+                    Console.Write(format);
+                    Console.SetCursorPosition(Console.CursorLeft - format.Length, Console.CursorTop);
+                }
+            };
+            Console.Write($"* Loading album '{command.PhotoSetId}' ... ");
+            var album = flickr.PhotosetsGetPhotos(command.PhotoSetId);
+            Console.WriteLine("[OK]");
+            var pictures = Directory.GetFiles(command.PictureLocalFolder, "*.jpg", SearchOption.AllDirectories);
+
+            var missingPictures = (from pictureFile in pictures
+                                   let pictureName = Path.GetFileName(pictureFile)
+                                   where (from photo in album
+                                          select photo.Title).Contains(pictureName) == false
+                                   select new {
+                                       Path = pictureFile,
+                                       Name = pictureName
+                                   }).ToArray();
+
+            Console.WriteLine($"* Album is '{album.Title}' and contains {album.Count} photos.");
+            Console.WriteLine($"* Folder '{command.PictureLocalFolder}' contains {pictures.Length} files with {pictures.Length - missingPictures.Length} already uploaded.");
+            if (missingPictures.Any()) {
+                Console.Write($"* {missingPictures.Length} files to upload. Continue? (y/n) => ");
+                if (Console.ReadLine() == "y") {
+                    foreach (var picture in missingPictures) {
+                        Console.Write($"* Uploading '{picture.Name}' ... ");
+                        var photoId = flickr.UploadPicture(picture.Path, picture.Name, null, null, false, false, false);
+                        Console.Write(" Adding in the album ... ");
+                        flickr.PhotosetsAddPhoto(command.PhotoSetId, photoId);
+                        Console.WriteLine("[DONE]");
+                    }
                 }
             }
-            Console.WriteLine("Done");
+            else {
+                Console.WriteLine("* Nothing to do.");
+            }
+
+            Console.WriteLine("* Upload ended.");
             Console.ReadKey();
         }
         private static Flickr GetAuthentifiedFlickrClient(string apiKey, string apiSecret)
