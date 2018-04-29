@@ -10,10 +10,11 @@ namespace flickr.uploader.tests
             var command = new UploadFolderToFlickrCommand {
                 ApiKey = "a023233ad75a2e7ae38a1b1aa92ff751",
                 ApiSecret = "abd048b37b9e44f9",
-                FileName  ="Resources/IMG_5146.jpg"
+                PictureLocalFolder  = "Resources/",
+                Album = "test"
             };
 
-            var handler = new UploadFolderToFlickrCommandHandler();
+            var handler = new UploadFolderToFlickrCommandHandler(new FlickrToken());
 
             handler.Handle(command);
         }
