@@ -59,6 +59,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Album.cs" />
+    <Compile Include="infrastructure\Console.cs" />
+    <Compile Include="infrastructure\FileService.cs" />
+    <Compile Include="IConsole.cs" />
+    <Compile Include="IFileService.cs" />
+    <Compile Include="IFlickrService.cs" />
+    <Compile Include="infrastructure\FlickrService.cs" />
+    <Compile Include="MediaFile.cs" />
+    <Compile Include="MediaTypes.cs" />
+    <Compile Include="Photo.cs" />
     <Compile Include="UploadFolderToFlickrCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,6 +78,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
