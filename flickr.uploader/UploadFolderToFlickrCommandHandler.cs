@@ -36,7 +36,13 @@ namespace flickr.uploader
             Console.Write($"* Loading album '{command.PhotoSetId}' ... ");
             var album = flickr.PhotosetsGetPhotos(command.PhotoSetId);
             Console.WriteLine("[OK]");
-            var pictures = Directory.GetFiles(command.PictureLocalFolder, "*.jpg", SearchOption.AllDirectories);
+
+            var allowedExtensions = new[] { ".jpg", ".mts", ".mp4"};
+
+            var pictures = Directory
+                .EnumerateFiles(command.PictureLocalFolder, "*.*", SearchOption.AllDirectories)
+                .Where(file => allowedExtensions.Any(file.ToLower().EndsWith))
+                .ToArray();
 
             var missingPictures = (from pictureFile in pictures
                                    let pictureName = Path.GetFileName(pictureFile)
@@ -53,7 +59,7 @@ namespace flickr.uploader
                 Console.Write($"* {missingPictures.Length} files to upload. Continue? (y/n) => ");
                 if (Console.ReadLine() == "y") {
                     foreach (var picture in missingPictures) {
-                        Console.Write($"* Uploading '{picture.Name}' ... ");
+                        Console.Write($"* Uploading '{picture.Name}'ttern ... ");
                         var photoId = flickr.UploadPicture(picture.Path, picture.Name, null, null, false, false, false);
                         Console.Write(" Adding in the album ... ");
                         flickr.PhotosetsAddPhoto(command.PhotoSetId, photoId);
