@@ -33,7 +33,7 @@ namespace flickr.uploader
             var mediaFiles = _fileService.GetMediaFiles(command.PictureLocalFolder);
             var mediaFilesFiltered = FilterOnlyNotAlreadyUploaded(mediaFiles, album);
             _console.WriteLine($"* Album is '{album.Title}' and contains {album.Photos.Count()} photos.");
-            _console.WriteLine($"* Folder '{command.PictureLocalFolder}' contains {mediaFiles.Count} files with {mediaFiles.Count - mediaFilesFiltered.Count} already uploaded.");
+            _console.WriteLine($"* Folder '{command.PictureLocalFolder}' contains {mediaFiles.Count} media files with {mediaFiles.Count - mediaFilesFiltered.Count} already uploaded.");
             if (mediaFilesFiltered.Any()) {
                 if (ConfirmOperationByUser(mediaFilesFiltered)) {
                     foreach (var mediaFile in mediaFilesFiltered) {
@@ -51,7 +51,7 @@ namespace flickr.uploader
         // ----- Internal logics
         private static bool ConfirmOperationByUser(IReadOnlyCollection<MediaFile> mediaFilesFiltered)
         {
-            Console.Write($"* {mediaFilesFiltered.Count} files to upload. Continue? (y/n) => ");
+            Console.Write($"* {mediaFilesFiltered.Count} media files to upload. Continue? (y/n) => ");
             return Console.ReadLine() == "y";
         }
         private static IReadOnlyCollection<MediaFile> FilterOnlyNotAlreadyUploaded(IEnumerable<MediaFile> mediaFiles, Album album)
