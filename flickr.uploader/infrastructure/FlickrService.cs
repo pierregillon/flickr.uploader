@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FlickrNet;
@@ -29,12 +30,13 @@ namespace flickr.uploader.infrastructure
             _console.Write($"* Loading album '{albumId}' ... ");
             try {
                 CheckFlickrInitialized();
-                var photoSet = _flickr.PhotosetsGetPhotos(albumId);
+                var photoSet = _flickr.PhotosetsGetInfo(albumId);
+                var allPhotosInAlbum = GetAllPhotosInAlbum(albumId, photoSet);
                 _console.WriteLine("[OK]");
                 return new Album {
                     Id = photoSet.PhotosetId,
                     Title = photoSet.Title,
-                    Photos = photoSet.Select(x => new Photo {
+                    Photos = allPhotosInAlbum.Select(x => new Photo {
                         Title = x.Title
                     })
                 };
@@ -76,6 +78,17 @@ namespace flickr.uploader.infrastructure
             if (_flickr == null) {
                 throw new Exception("Flickr not initialized");
             }
+        }
+        private IEnumerable<FlickrNet.Photo> GetAllPhotosInAlbum(string albumId, Photoset photoSet)
+        {
+            var allPhotosInAlbum = new List<FlickrNet.Photo>();
+            const int elementPerPageCount = 500;
+            var pageCount = (int)Math.Ceiling((float) (photoSet.NumberOfPhotos + photoSet.NumberOfVideos) / elementPerPageCount);
+            for (var pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+                var photosPerPage = _flickr.PhotosetsGetPhotos(albumId, PhotoSearchExtras.None, PrivacyFilter.None, pageNumber, elementPerPageCount);
+                allPhotosInAlbum.AddRange(photosPerPage);
+            }
+            return allPhotosInAlbum;
         }
         private string UploadMediaFile(MediaFile mediaFile)
         {
