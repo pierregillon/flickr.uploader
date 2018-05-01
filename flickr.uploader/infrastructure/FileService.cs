@@ -15,9 +15,9 @@ namespace flickr.uploader.infrastructure
 
             var query = from filePath in Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories)
                         let extension = Path.GetExtension(filePath)
-                        let isVideo = videoExtensions.Contains(extension.ToLower())
                         let isPhoto = photoExtensions.Contains(extension.ToLower())
-                        where isVideo || isPhoto
+                        //let isVideo = videoExtensions.Contains(extension.ToLower())
+                        where /*isVideo ||*/ isPhoto
                         select new MediaFile {
                             FileName = Path.GetFileName(filePath),
                             Path = filePath,
