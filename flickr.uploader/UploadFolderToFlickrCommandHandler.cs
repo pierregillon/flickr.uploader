@@ -37,7 +37,12 @@ namespace flickr.uploader
             if (mediaFilesFiltered.Any()) {
                 if (ConfirmOperationByUser(mediaFilesFiltered)) {
                     foreach (var mediaFile in mediaFilesFiltered) {
-                        _flickrService.AddMediaFileInAlbum(mediaFile, album);
+                        try {
+                            _flickrService.AddMediaFileInAlbum(mediaFile, album);
+                        }
+                        catch (Exception ex) {
+                            Console.WriteLine(ex.Message);
+                        }
                     }
                 }
             }

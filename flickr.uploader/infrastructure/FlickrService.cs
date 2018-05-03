@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using FlickrNet;
@@ -11,6 +12,9 @@ namespace flickr.uploader.infrastructure
         private readonly IConsole _console;
         private readonly IFileService _fileService;
         private Flickr _flickr;
+        private readonly List<double> _lastSpeeds = new List<double> {0};
+        private double _lastBytesSent = 0;
+        private readonly Stopwatch _watch = new Stopwatch();
 
         // ----- Constructor
         public FlickrService(IConsole console, IFileService fileService)
@@ -58,15 +62,28 @@ namespace flickr.uploader.infrastructure
         // ----- Callbacks
         private void FlickrOnOnUploadProgress(object sender, UploadProgressEventArgs args)
         {
+            const int rowWidth = 40;
             if (args.UploadComplete) {
                 var done = "[DONE]";
-                _console.Write(done.PadRight(30));
-                if (_console.CursorLeft - (30 - done.Length) > 0) {
-                    _console.SetCursorPosition(_console.CursorLeft - (30 - done.Length), _console.CursorTop);
+                _console.Write(done.PadRight(rowWidth));
+                if (_console.CursorLeft - (rowWidth - done.Length) > 0) {
+                    _console.SetCursorPosition(_console.CursorLeft - (rowWidth - done.Length), _console.CursorTop);
                 }
             }
             else {
-                var format = $"{args.ProcessPercentage}% ({args.BytesSent} on {args.TotalBytesToSend})";
+                if (_lastBytesSent != 0) {
+                    var bytesSentInOperation = args.BytesSent - _lastBytesSent;
+                    var ellapsedSeconds = _watch.Elapsed.TotalSeconds;
+                    var bytesPerSeconds = bytesSentInOperation / ellapsedSeconds;
+                    _lastSpeeds.Add(bytesPerSeconds);
+                    if (_lastSpeeds.Count > 30) {
+                        _lastSpeeds.RemoveAt(0);
+                    }
+                }
+                _lastBytesSent = args.BytesSent;
+                _watch.Restart();
+
+                var format = $"{args.ProcessPercentage} % ({ToBetterUnit(args.BytesSent)} on {ToBetterUnit(args.TotalBytesToSend)} - {ToBetterUnit((long)_lastSpeeds.Average(x => x))}/s)".PadRight(rowWidth);
                 _console.Write(format);
                 _console.SetCursorPosition(_console.CursorLeft - format.Length, _console.CursorTop);
             }
@@ -83,7 +100,7 @@ namespace flickr.uploader.infrastructure
         {
             var allPhotosInAlbum = new List<FlickrNet.Photo>();
             const int elementPerPageCount = 500;
-            var pageCount = (int)Math.Ceiling((float) (photoSet.NumberOfPhotos + photoSet.NumberOfVideos) / elementPerPageCount);
+            var pageCount = (int) Math.Ceiling((float) (photoSet.NumberOfPhotos + photoSet.NumberOfVideos) / elementPerPageCount);
             for (var pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
                 var photosPerPage = _flickr.PhotosetsGetPhotos(albumId, PhotoSearchExtras.None, PrivacyFilter.None, pageNumber, elementPerPageCount);
                 allPhotosInAlbum.AddRange(photosPerPage);
@@ -94,29 +111,20 @@ namespace flickr.uploader.infrastructure
         {
             string photoId;
             using (var stream = File.OpenRead(mediaFile.Path)) {
-                if (mediaFile.MediaType == MediaTypes.Photo) {
-                    photoId = UploadElement(mediaFile, stream, ContentType.Photo);
-                }
-                else {
-                    photoId = UploadElement(mediaFile, stream, ContentType.Other);
-                }
+                    photoId = _flickr.UploadPicture(
+                        stream,
+                        mediaFile.Path,
+                        mediaFile.FileName,
+                        null,
+                        null,
+                        false,
+                        false,
+                        false,
+                        ContentType.Photo, 
+                        SafetyLevel.None,
+                        HiddenFromSearch.Hidden);
             }
             return photoId;
-        }
-        private string UploadElement(MediaFile mediaFile, Stream stream, ContentType contentType)
-        {
-            return _flickr.UploadPicture(
-                stream,
-                mediaFile.Path,
-                mediaFile.FileName,
-                null,
-                null,
-                false,
-                false,
-                false,
-                contentType,
-                SafetyLevel.Restricted,
-                HiddenFromSearch.Hidden);
         }
         private Flickr GetAuthentifiedFlickrClient(string apiKey, string apiSecret)
         {
@@ -165,7 +173,7 @@ namespace flickr.uploader.infrastructure
             var requestToken = flickr.OAuthGetRequestToken("oob");
             var url = flickr.OAuthCalculateAuthorizationUrl(requestToken.Token, AuthLevel.Write);
             _console.Write("* Opening browser ... ");
-            System.Diagnostics.Process.Start(url)?.WaitForExit();
+            Process.Start(url)?.WaitForExit();
             _console.WriteLine("[DONE]");
 
             while (true) {
@@ -180,6 +188,25 @@ namespace flickr.uploader.infrastructure
                     _console.WriteLine("=> ERROR");
                 }
             }
+        }
+
+        // ----- Utils
+        private static string ToBetterUnit(long bytes)
+        {
+            var _1_KO = Math.Pow(2, 10);
+            var _1_MO = Math.Pow(2, 20);
+            var _1_GO = Math.Pow(2, 30);
+
+            if (bytes >= _1_GO) {
+                return $"{Math.Round(bytes / _1_GO)} Go";
+            }
+            if (bytes >= _1_MO) {
+                return $"{Math.Round(bytes / _1_MO)} Mo";
+            }
+            if (bytes >= _1_KO) {
+                return $"{Math.Round(bytes / _1_KO)} Ko";
+            }
+            return $"{bytes} o";
         }
     }
 }
