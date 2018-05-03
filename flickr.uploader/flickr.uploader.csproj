@@ -59,20 +59,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Album.cs" />
+    <Compile Include="domain\Album.cs" />
+    <Compile Include="domain\AuthenticatedCommand.cs" />
     <Compile Include="infrastructure\Console.cs" />
     <Compile Include="infrastructure\FileService.cs" />
-    <Compile Include="IConsole.cs" />
-    <Compile Include="IFileService.cs" />
-    <Compile Include="IFlickrService.cs" />
+    <Compile Include="domain\IConsole.cs" />
+    <Compile Include="domain\IFileService.cs" />
+    <Compile Include="domain\IFlickrService.cs" />
     <Compile Include="infrastructure\FlickrService.cs" />
-    <Compile Include="MediaFile.cs" />
-    <Compile Include="MediaTypes.cs" />
-    <Compile Include="Photo.cs" />
-    <Compile Include="UploadFolderToFlickrCommand.cs" />
+    <Compile Include="domain\MediaFile.cs" />
+    <Compile Include="domain\MediaTypes.cs" />
+    <Compile Include="domain\Photo.cs" />
+    <Compile Include="domain\RemoveDupplication\RemoveDupplicationInAlbumCommand.cs" />
+    <Compile Include="domain\RemoveDupplication\RemoveDupplicationInAlbumCommandHandler.cs" />
+    <Compile Include="domain\UploadFolder\UploadFolderToFlickrCommand.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UploadFolderToFlickrCommandHandler.cs" />
+    <Compile Include="domain\UploadFolder\UploadFolderToFlickrCommandHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

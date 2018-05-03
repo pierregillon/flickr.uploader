@@ -1,8 +1,8 @@
-using CommandLine;
+﻿using CommandLine;
 
 namespace flickr.uploader
 {
-    public class UploadFolderToFlickrCommand
+    public class Options
     {
         [Option("apikey", Required = true, HelpText = "The Flickr api key")]
         public string ApiKey { get; set; }
@@ -11,7 +11,7 @@ namespace flickr.uploader
         public string ApiSecret { get; set; }
 
         [Option("folder", Required = true, HelpText = "The folder to parse and to upload pictures")]
-        public string PictureLocalFolder { get; set; }
+        public string LocalFolder { get; set; }
 
         [Option("album", Required = true, HelpText = "The album name to upload the pictures.")]
         public string PhotoSetId { get; set; }

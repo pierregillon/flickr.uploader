@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace flickr.uploader
+namespace flickr.uploader.domain
 {
     public class Album
     {

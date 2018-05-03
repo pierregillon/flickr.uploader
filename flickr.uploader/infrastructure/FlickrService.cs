@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using flickr.uploader.domain;
 using FlickrNet;
+using Photo = flickr.uploader.domain.Photo;
 
 namespace flickr.uploader.infrastructure
 {
@@ -41,6 +43,7 @@ namespace flickr.uploader.infrastructure
                     Id = photoSet.PhotosetId,
                     Title = photoSet.Title,
                     Photos = allPhotosInAlbum.Select(x => new Photo {
+                        Id = x.PhotoId,
                         Title = x.Title
                     })
                 };
@@ -56,6 +59,12 @@ namespace flickr.uploader.infrastructure
             var photoId = UploadMediaFile(mediaFile);
             _console.Write(" Adding in the album ... ");
             _flickr.PhotosetsAddPhoto(album.Id, photoId);
+            _console.WriteLine("[DONE]");
+        }
+        public void DeletePhoto(Photo photo)
+        {
+            _console.Write($"* Deleting media file '{photo.Title}' ... ");
+            _flickr.PhotosDelete(photo.Id);
             _console.WriteLine("[DONE]");
         }
 
@@ -171,7 +180,7 @@ namespace flickr.uploader.infrastructure
         {
             _console.WriteLine("* Creation of a new token.");
             var requestToken = flickr.OAuthGetRequestToken("oob");
-            var url = flickr.OAuthCalculateAuthorizationUrl(requestToken.Token, AuthLevel.Write);
+            var url = flickr.OAuthCalculateAuthorizationUrl(requestToken.Token, AuthLevel.Delete);
             _console.Write("* Opening browser ... ");
             Process.Start(url)?.WaitForExit();
             _console.WriteLine("[DONE]");

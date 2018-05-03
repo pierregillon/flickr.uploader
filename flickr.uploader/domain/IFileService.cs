@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace flickr.uploader
+namespace flickr.uploader.domain
 {
     public interface IFileService
     {

@@ -1,4 +1,6 @@
-﻿namespace flickr.uploader.infrastructure
+﻿using flickr.uploader.domain;
+
+namespace flickr.uploader.infrastructure
 {
     public class Console : IConsole
     {

@@ -1,4 +1,4 @@
-namespace flickr.uploader
+namespace flickr.uploader.domain
 {
     public interface IFlickrService
     {
@@ -6,5 +6,6 @@ namespace flickr.uploader
 
         void Authenticate(string apiKey, string apiSecret);
         void AddMediaFileInAlbum(MediaFile mediaFile, Album album);
+        void DeletePhoto(Photo photo);
     }
 }
