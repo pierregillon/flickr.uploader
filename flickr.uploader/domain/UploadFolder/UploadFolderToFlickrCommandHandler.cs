@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace flickr.uploader.domain.UploadFolder
@@ -64,13 +65,18 @@ namespace flickr.uploader.domain.UploadFolder
         }
         private static IReadOnlyCollection<MediaFile> FilterOnlyNotAlreadyUploaded(IEnumerable<MediaFile> mediaFiles, Album album)
         {
+            var existingTitles = album.Photos.Select(x => Normalize(x.Title)).ToArray();
+
             var query = from mediaFile in mediaFiles
-                        where (from photo in album.Photos
-                               select photo.Title).Contains(mediaFile.FileName) == false
+                        let normalizedTitle = Normalize(mediaFile.FileName)
+                        where existingTitles.Contains(normalizedTitle) == false
                         orderby mediaFile.Length
                         select mediaFile;
-
             return query.ToArray();
+        }
+        private static string Normalize(string input)
+        {
+            return Path.GetFileNameWithoutExtension(input.ToLower());
         }
     }
 }
