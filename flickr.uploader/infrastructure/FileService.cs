@@ -14,14 +14,15 @@ namespace flickr.uploader.infrastructure
             var videoExtensions = new[] { ".mts", ".mp4" };
 
             var query = from filePath in Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories)
-                        let extension = Path.GetExtension(filePath)
-                        let isPhoto = photoExtensions.Contains(extension.ToLower())
-                        let isVideo = videoExtensions.Contains(extension.ToLower())
+                        let fileInfo = new FileInfo(filePath)
+                        let isPhoto = photoExtensions.Contains(fileInfo.Extension.ToLower())
+                        let isVideo = videoExtensions.Contains(fileInfo.Extension.ToLower())
                         where isVideo || isPhoto
                         select new MediaFile {
-                            FileName = Path.GetFileName(filePath),
+                            FileName = fileInfo.Name,
                             Path = filePath,
-                            MediaType = isPhoto ? MediaTypes.Photo : MediaTypes.Video
+                            MediaType = isPhoto ? MediaTypes.Photo : MediaTypes.Video,
+                            Length = fileInfo.Length
                         };
 
             return query.ToList();

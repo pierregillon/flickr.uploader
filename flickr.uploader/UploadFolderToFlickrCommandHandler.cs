@@ -32,28 +32,35 @@ namespace flickr.uploader
             var album = _flickrService.GetAlbum(command.PhotoSetId);
             var mediaFiles = _fileService.GetMediaFiles(command.PictureLocalFolder);
             var mediaFilesFiltered = FilterOnlyNotAlreadyUploaded(mediaFiles, album);
-            _console.WriteLine($"* Album is '{album.Title}' and contains {album.Photos.Count()} photos.");
-            _console.WriteLine($"* Folder '{command.PictureLocalFolder}' contains {mediaFiles.Count} media files with {mediaFiles.Count - mediaFilesFiltered.Count} already uploaded.");
+            PrintStatement(command, album, mediaFiles, mediaFilesFiltered);
             if (mediaFilesFiltered.Any()) {
                 if (ConfirmOperationByUser(mediaFilesFiltered)) {
-                    foreach (var mediaFile in mediaFilesFiltered) {
-                        try {
-                            _flickrService.AddMediaFileInAlbum(mediaFile, album);
-                        }
-                        catch (Exception ex) {
-                            Console.WriteLine(ex.Message);
-                        }
-                    }
+                    AddMediaFilesInFlickrAlbum(mediaFilesFiltered, album);
                 }
             }
             else {
                 _console.WriteLine("* Nothing to do.");
             }
-
             _console.WriteLine("* Upload folder to flickr operation ended.");
         }
 
         // ----- Internal logics
+        private void AddMediaFilesInFlickrAlbum(IEnumerable<MediaFile> mediaFilesFiltered, Album album)
+        {
+            foreach (var mediaFile in mediaFilesFiltered) {
+                try {
+                    _flickrService.AddMediaFileInAlbum(mediaFile, album);
+                }
+                catch (Exception ex) {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+        private void PrintStatement(UploadFolderToFlickrCommand command, Album album, IReadOnlyCollection<MediaFile> mediaFiles, IReadOnlyCollection<MediaFile> mediaFilesFiltered)
+        {
+            _console.WriteLine($"* Album is '{album.Title}' and contains {album.Photos.Count()} photos.");
+            _console.WriteLine($"* Folder '{command.PictureLocalFolder}' contains {mediaFiles.Count} media files with {mediaFiles.Count - mediaFilesFiltered.Count} already uploaded.");
+        }
         private static bool ConfirmOperationByUser(IReadOnlyCollection<MediaFile> mediaFilesFiltered)
         {
             Console.Write($"* {mediaFilesFiltered.Count} media files to upload. Continue? (y/n) => ");
@@ -64,6 +71,7 @@ namespace flickr.uploader
             var query = from mediaFile in mediaFiles
                         where (from photo in album.Photos
                                select photo.Title).Contains(mediaFile.FileName) == false
+                        orderby mediaFile.Length
                         select mediaFile;
 
             return query.ToArray();
