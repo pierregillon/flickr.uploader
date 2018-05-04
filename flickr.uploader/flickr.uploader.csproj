@@ -70,8 +70,8 @@
     <Compile Include="domain\MediaFile.cs" />
     <Compile Include="domain\MediaTypes.cs" />
     <Compile Include="domain\Photo.cs" />
-    <Compile Include="domain\RemoveDupplication\RemoveDupplicationInAlbumCommand.cs" />
-    <Compile Include="domain\RemoveDupplication\RemoveDupplicationInAlbumCommandHandler.cs" />
+    <Compile Include="domain\RemoveDuplication\RemoveDuplicationInAlbumCommand.cs" />
+    <Compile Include="domain\RemoveDuplication\RemoveDuplicationInAlbumCommandHandler.cs" />
     <Compile Include="domain\UploadFolder\UploadFolderToFlickrCommand.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />

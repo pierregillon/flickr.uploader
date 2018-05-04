@@ -1,13 +1,13 @@
 using System.Linq;
 
-namespace flickr.uploader.domain.RemoveDupplication
+namespace flickr.uploader.domain.Removeduplication
 {
-    public class RemoveDupplicationInAlbumCommandHandler
+    public class RemoveDuplicationInAlbumCommandHandler
     {
         private readonly IConsole _console;
         private readonly IFlickrService _flickrService;
 
-        public RemoveDupplicationInAlbumCommandHandler(
+        public RemoveDuplicationInAlbumCommandHandler(
             IConsole console,
             IFlickrService flickrService)
         {
@@ -15,22 +15,22 @@ namespace flickr.uploader.domain.RemoveDupplication
             _flickrService = flickrService;
         }
 
-        public void Handle(RemoveDupplicationInAlbumCommand command)
+        public void Handle(RemoveDuplicationInAlbumCommand command)
         {
             _flickrService.Authenticate(command.ApiKey, command.ApiSecret);
-            RemoveDupplications(command.AlbumId);
+            RemoveDuplications(command.AlbumId);
         }
 
-        private void RemoveDupplications(string albumId)
+        private void RemoveDuplications(string albumId)
         {
             var album = _flickrService.GetAlbum(albumId);
-            var dupplicatedPhotoGroups = album.Photos.GroupBy(x => x.Title).Where(x => x.Count() > 1).ToArray();
-            if (dupplicatedPhotoGroups.Any()) {
-                _console.WriteLine($"* {dupplicatedPhotoGroups.Length} dupplicated media files found in the album {album.Title}.");
+            var duplicatedPhotoGroups = album.Photos.GroupBy(x => x.Title).Where(x => x.Count() > 1).ToArray();
+            if (duplicatedPhotoGroups.Any()) {
+                _console.WriteLine($"* {duplicatedPhotoGroups.Length} duplicated media files found in the album {album.Title}.");
                 _console.Write("* Do you want to clean them up? (y/n) => ");
                 if (_console.ReadLine() == "y") {
-                    foreach (var dupplicatedPhotos in dupplicatedPhotoGroups) {
-                        foreach (var photo in dupplicatedPhotos.Skip(1)) {
+                    foreach (var duplicatedPhotos in duplicatedPhotoGroups) {
+                        foreach (var photo in duplicatedPhotos.Skip(1)) {
                             _flickrService.DeletePhoto(photo);
                         }
                     }

@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 using flickr.uploader.domain;
-using flickr.uploader.domain.RemoveDupplication;
+using flickr.uploader.domain.Removeduplication;
 using flickr.uploader.domain.UploadFolder;
 using flickr.uploader.infrastructure;
 using StructureMap;
@@ -20,7 +20,7 @@ namespace flickr.uploader
             Parser.Default.ParseArguments<Options>(args)
                   .WithParsed(options => {
                       UploadFolder(container, options);
-                      RemoveDupplication(container, options);
+                      RemoveDuplication(container, options);
                   });
         }
 
@@ -36,10 +36,10 @@ namespace flickr.uploader
             };
             handler.Handle(command);
         }
-        private static void RemoveDupplication(IContainer container, Options options)
+        private static void RemoveDuplication(IContainer container, Options options)
         {
-            var handler = container.GetInstance<RemoveDupplicationInAlbumCommandHandler>();
-            var command = new RemoveDupplicationInAlbumCommand() {
+            var handler = container.GetInstance<RemoveDuplicationInAlbumCommandHandler>();
+            var command = new RemoveDuplicationInAlbumCommand() {
                 ApiKey = options.ApiKey,
                 ApiSecret = options.ApiSecret,
                 AlbumId = options.PhotoSetId,
