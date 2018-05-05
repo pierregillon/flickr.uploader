@@ -7,5 +7,6 @@ namespace flickr.uploader.domain
         void Authenticate(string apiKey, string apiSecret);
         void AddMediaFileInAlbum(MediaFile mediaFile, Album album);
         void DeletePhoto(Photo photo);
+        string CreateAlbum(string albumName);
     }
 }

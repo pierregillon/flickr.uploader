@@ -13,7 +13,7 @@ namespace flickr.uploader
         [Option("folder", Required = true, HelpText = "The folder to parse and to upload pictures")]
         public string LocalFolder { get; set; }
 
-        [Option("album", Required = true, HelpText = "The album name to upload the pictures.")]
+        [Option("album", Required = false, HelpText = "The album id to upload the pictures.")]
         public string PhotoSetId { get; set; }
     }
 }

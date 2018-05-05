@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using flickr.uploader.domain;
+using flickr.uploader.domain.CreateNewAlbum;
 using flickr.uploader.domain.Removeduplication;
 using flickr.uploader.domain.UploadFolder;
 using flickr.uploader.infrastructure;
@@ -19,12 +20,24 @@ namespace flickr.uploader
 
             Parser.Default.ParseArguments<Options>(args)
                   .WithParsed(options => {
+                      if (string.IsNullOrEmpty(options.PhotoSetId)) {
+                          options.PhotoSetId = CreateNewAlbum(container, options);
+                      }
                       UploadFolder(container, options);
                       RemoveDuplication(container, options);
                   });
         }
 
-        // ----- Utils
+        // ----- Internal logic
+        private static string CreateNewAlbum(IContainer container, Options options)
+        {
+            var handler = container.GetInstance<CreateNewAlbumCommandHandler>();
+            var command = new CreateNewAlbumCommand {
+                ApiKey = options.ApiKey,
+                ApiSecret = options.ApiSecret
+            };
+            return handler.Handle(command);
+        }
         private static void UploadFolder(IContainer container, Options options)
         {
             var handler = container.GetInstance<UploadFolderToFlickrCommandHandler>();

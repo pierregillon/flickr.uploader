@@ -1,4 +1,5 @@
-﻿using flickr.uploader.domain;
+﻿using System;
+using flickr.uploader.domain;
 
 namespace flickr.uploader.infrastructure
 {
@@ -16,6 +17,15 @@ namespace flickr.uploader.infrastructure
         {
             return System.Console.ReadLine();
         }
+        public string ReadLine(string instructions)
+        {
+            string result = null;
+            while (string.IsNullOrEmpty(result)) {
+                Write(instructions);
+                result = ReadLine();
+            }
+            return result;
+        }
         public int CursorLeft
         {
             get { return System.Console.CursorLeft; }
@@ -29,6 +39,24 @@ namespace flickr.uploader.infrastructure
         public void SetCursorPosition(int left, int top)
         {
             System.Console.SetCursorPosition(left, top);
+        }
+        public T StartOperation<T>(string operationName, Func<T> action)
+        {
+            if (operationName == null) throw new ArgumentNullException(nameof(operationName));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            try
+            {
+                Write(operationName);
+                var result = action();
+                WriteLine("[DONE]");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLine($"[FAIL] => {ex.Message}");
+                throw;
+            }
         }
     }
 }

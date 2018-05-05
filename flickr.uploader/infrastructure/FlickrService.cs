@@ -67,6 +67,12 @@ namespace flickr.uploader.infrastructure
             _flickr.PhotosDelete(photo.Id);
             _console.WriteLine("[DONE]");
         }
+        public string CreateAlbum(string albumName)
+        {
+            var photoSet = _flickr.PhotosetsCreate(albumName, "P1040475.JPG");
+            _flickr.PhotosetsRemovePhoto(photoSet.PhotosetId, "P1040475.JPG");
+            return photoSet.PhotosetId;
+        }
 
         // ----- Callbacks
         private void FlickrOnOnUploadProgress(object sender, UploadProgressEventArgs args)
