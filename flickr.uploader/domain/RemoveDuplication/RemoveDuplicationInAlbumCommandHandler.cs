@@ -31,7 +31,9 @@ namespace flickr.uploader.domain.Removeduplication
                 if (_console.ReadLine() == "y") {
                     foreach (var duplicatedPhotos in duplicatedPhotoGroups) {
                         foreach (var photo in duplicatedPhotos.Skip(1)) {
-                            _flickrService.DeletePhoto(photo);
+                            _console.StartOperation(
+                                $"* Deleting media file '{photo.Title}' ... ",
+                                () => _flickrService.DeletePhoto(photo));
                         }
                     }
                     _console.WriteLine("* Album cleaned.");

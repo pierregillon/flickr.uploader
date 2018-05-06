@@ -14,7 +14,7 @@ namespace flickr.uploader.infrastructure
         private readonly IConsole _console;
         private readonly IFileService _fileService;
         private Flickr _flickr;
-        private readonly List<double> _lastSpeeds = new List<double> {0};
+        private readonly List<double> _lastSpeeds = new List<double> { 0 };
         private double _lastBytesSent = 0;
         private readonly Stopwatch _watch = new Stopwatch();
 
@@ -33,39 +33,28 @@ namespace flickr.uploader.infrastructure
         }
         public Album GetAlbum(string albumId)
         {
-            _console.Write($"* Loading album '{albumId}' ... ");
-            try {
-                CheckFlickrInitialized();
-                var photoSet = _flickr.PhotosetsGetInfo(albumId);
-                var allPhotosInAlbum = GetAllPhotosInAlbum(albumId, photoSet);
-                _console.WriteLine("[OK]");
-                return new Album {
-                    Id = photoSet.PhotosetId,
-                    Title = photoSet.Title,
-                    Photos = allPhotosInAlbum.Select(x => new Photo {
-                        Id = x.PhotoId,
-                        Title = x.Title
-                    })
-                };
-            }
-            catch (Exception e) {
-                _console.WriteLine($"[KO] => {e.Message}");
-                throw;
-            }
+            CheckFlickrInitialized();
+            var photoSet = _flickr.PhotosetsGetInfo(albumId);
+            var allPhotosInAlbum = GetAllPhotosInAlbum(albumId, photoSet);
+            return new Album {
+                Id = photoSet.PhotosetId,
+                Title = photoSet.Title,
+                Photos = allPhotosInAlbum.Select(x => new Photo {
+                    Id = x.PhotoId,
+                    Title = x.Title
+                })
+            };
         }
         public void AddMediaFileInAlbum(MediaFile mediaFile, Album album)
         {
-            _console.Write($"* Uploading '{mediaFile.FileName}' ... ");
             var photoId = UploadMediaFile(mediaFile);
-            _console.Write(" Adding in the album ... ");
+            var position = _console.Write(" Adding in the album ... ");
             _flickr.PhotosetsAddPhoto(album.Id, photoId);
-            _console.WriteLine("[DONE]");
+            _console.Clean(position);
         }
         public void DeletePhoto(Photo photo)
         {
-            _console.Write($"* Deleting media file '{photo.Title}' ... ");
             _flickr.PhotosDelete(photo.Id);
-            _console.WriteLine("[DONE]");
         }
         public string CreateAlbum(string albumName)
         {
@@ -79,10 +68,10 @@ namespace flickr.uploader.infrastructure
         {
             const int rowWidth = 40;
             if (args.UploadComplete) {
-                var done = "[DONE]";
-                _console.Write(done.PadRight(rowWidth));
-                if (_console.CursorLeft - (rowWidth - done.Length) > 0) {
-                    _console.SetCursorPosition(_console.CursorLeft - (rowWidth - done.Length), _console.CursorTop);
+                var clean = " ";
+                _console.Write(clean.PadRight(rowWidth));
+                if (_console.CursorLeft - (rowWidth - clean.Length) > 0) {
+                    _console.SetCursorPosition(_console.CursorLeft - (rowWidth - clean.Length), _console.CursorTop);
                 }
             }
             else {
@@ -98,7 +87,7 @@ namespace flickr.uploader.infrastructure
                 _lastBytesSent = args.BytesSent;
                 _watch.Restart();
 
-                var format = $"{args.ProcessPercentage} % ({ToBetterUnit(args.BytesSent)} on {ToBetterUnit(args.TotalBytesToSend)} - {ToBetterUnit((long)_lastSpeeds.Average(x => x))}/s)".PadRight(rowWidth);
+                var format = $"{args.ProcessPercentage} % ({ToBetterUnit(args.BytesSent)} on {ToBetterUnit(args.TotalBytesToSend)} - {ToBetterUnit((long) _lastSpeeds.Average(x => x))}/s)".PadRight(rowWidth);
                 _console.Write(format);
                 _console.SetCursorPosition(_console.CursorLeft - format.Length, _console.CursorTop);
             }
@@ -126,18 +115,18 @@ namespace flickr.uploader.infrastructure
         {
             string photoId;
             using (var stream = File.OpenRead(mediaFile.Path)) {
-                    photoId = _flickr.UploadPicture(
-                        stream,
-                        mediaFile.Path,
-                        mediaFile.FileName,
-                        null,
-                        null,
-                        false,
-                        false,
-                        false,
-                        ContentType.Photo, 
-                        SafetyLevel.None,
-                        HiddenFromSearch.Hidden);
+                photoId = _flickr.UploadPicture(
+                    stream,
+                    mediaFile.Path,
+                    mediaFile.FileName,
+                    null,
+                    null,
+                    false,
+                    false,
+                    false,
+                    ContentType.Photo,
+                    SafetyLevel.None,
+                    HiddenFromSearch.Hidden);
             }
             return photoId;
         }
@@ -156,21 +145,17 @@ namespace flickr.uploader.infrastructure
         }
         private Flickr CreateFlickrClientFromExistingToken(string apiKey, string apiSecret, string tokenFilePath)
         {
-            try {
-                _console.Write($"* Reading token from '{tokenFilePath}' file ... ");
-                var accesToken = _fileService.Deserialize<OAuthAccessToken>(tokenFilePath);
-                var flickr = new Flickr(apiKey, apiSecret) {
-                    OAuthAccessToken = accesToken.Token,
-                    OAuthAccessTokenSecret = accesToken.TokenSecret
-                };
-                flickr.AuthOAuthCheckToken();
-                _console.WriteLine("[OK]");
-                return flickr;
-            }
-            catch (OAuthException e) {
-                _console.WriteLine($"[KO] => {e.Message}");
-                throw;
-            }
+            return _console.StartOperation(
+                $"* Reading token from '{tokenFilePath}' file ... ",
+                () => {
+                    var accesToken = _fileService.Deserialize<OAuthAccessToken>(tokenFilePath);
+                    var flickr = new Flickr(apiKey, apiSecret) {
+                        OAuthAccessToken = accesToken.Token,
+                        OAuthAccessTokenSecret = accesToken.TokenSecret
+                    };
+                    flickr.AuthOAuthCheckToken();
+                    return flickr;
+                });
         }
         private Flickr CreateNewFlickrClient(string apiKey, string apiSecret, string tokenFilePath)
         {

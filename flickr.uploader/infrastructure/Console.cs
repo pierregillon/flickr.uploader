@@ -5,9 +5,14 @@ namespace flickr.uploader.infrastructure
 {
     public class Console : IConsole
     {
-        public void Write(string input)
+        public OutputId Write(string input)
         {
+            var id = new OutputId {
+                Left = CursorLeft,
+                Length = input.Length
+            };
             System.Console.Write(input);
+            return id;
         }
         public void WriteLine(string input)
         {
@@ -25,6 +30,12 @@ namespace flickr.uploader.infrastructure
                 result = ReadLine();
             }
             return result;
+        }
+        public void Clean(OutputId id)
+        {
+            SetCursorPosition(id.Left, CursorTop);
+            Write("".PadRight(id.Length));
+            SetCursorPosition(id.Left, CursorTop);
         }
         public int CursorLeft
         {
@@ -45,15 +56,28 @@ namespace flickr.uploader.infrastructure
             if (operationName == null) throw new ArgumentNullException(nameof(operationName));
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            try
-            {
+            try {
                 Write(operationName);
                 var result = action();
                 WriteLine("[DONE]");
                 return result;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                WriteLine($"[FAIL] => {ex.Message}");
+                throw;
+            }
+        }
+        public void StartOperation(string operationName, Action action)
+        {
+            if (operationName == null) throw new ArgumentNullException(nameof(operationName));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            try {
+                Write(operationName);
+                action();
+                WriteLine("[DONE]");
+            }
+            catch (Exception ex) {
                 WriteLine($"[FAIL] => {ex.Message}");
                 throw;
             }
