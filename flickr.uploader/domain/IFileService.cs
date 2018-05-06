@@ -7,5 +7,6 @@ namespace flickr.uploader.domain
         IReadOnlyCollection<MediaFile> GetMediaFiles(string folder);
         T Deserialize<T>(string filePath);
         void Serialize<T>(T obj, string filePath);
+        bool Exists(string filePath);
     }
 }

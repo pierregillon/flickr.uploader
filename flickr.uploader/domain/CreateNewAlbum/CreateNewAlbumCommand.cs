@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace flickr.uploader.domain.CreateNewAlbum
+﻿namespace flickr.uploader.domain.CreateNewAlbum
 {
-    public class CreateNewAlbumCommand : FlickrAuthenticatedCommand { }
+    public class CreateNewAlbumCommand { }
 }

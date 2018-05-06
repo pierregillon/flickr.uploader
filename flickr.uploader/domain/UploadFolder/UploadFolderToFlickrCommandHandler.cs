@@ -25,14 +25,14 @@ namespace flickr.uploader.domain.UploadFolder
         // ----- Public methods
         public void Handle(UploadFolderToFlickrCommand command)
         {
-            _flickrService.Authenticate(command.ApiKey, command.ApiSecret);
-
             var album = LoadAlbum(command.AlbumId);
             var mediaFiles = ReadLocalFolder(command.LocalFolder);
             var mediaFilesFiltered = FilterOnlyNotAlreadyUploaded(mediaFiles, album);
 
             PrintStatement(command, album, mediaFiles, mediaFilesFiltered);
             ProcessFolder(mediaFilesFiltered, album);
+
+            _console.WriteLine("* Upload folder ended");
         }
 
         // ----- Internal logics
@@ -74,7 +74,6 @@ namespace flickr.uploader.domain.UploadFolder
             else {
                 _console.WriteLine("* Nothing to upload.");
             }
-            _console.WriteLine("* [END]");
         }
         private void AddMediaFilesInFlickrAlbum(IEnumerable<MediaFile> mediaFilesFiltered, Album album)
         {

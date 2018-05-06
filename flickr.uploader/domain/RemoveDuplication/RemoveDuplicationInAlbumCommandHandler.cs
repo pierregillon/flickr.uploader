@@ -17,13 +17,7 @@ namespace flickr.uploader.domain.Removeduplication
 
         public void Handle(RemoveDuplicationInAlbumCommand command)
         {
-            _flickrService.Authenticate(command.ApiKey, command.ApiSecret);
-            RemoveDuplications(command.AlbumId);
-        }
-
-        private void RemoveDuplications(string albumId)
-        {
-            var album = _flickrService.GetAlbum(albumId);
+            var album = _flickrService.GetAlbum(command.AlbumId);
             var duplicatedPhotoGroups = album.Photos.GroupBy(x => x.Title).Where(x => x.Count() > 1).ToArray();
             if (duplicatedPhotoGroups.Any()) {
                 _console.WriteLine($"* {duplicatedPhotoGroups.Length} duplicated media files found in the album {album.Title}.");
@@ -39,7 +33,10 @@ namespace flickr.uploader.domain.Removeduplication
                     _console.WriteLine("* Album cleaned.");
                 }
             }
-            _console.WriteLine("* [END]");
+            else {
+                _console.WriteLine($"* No duplication found on the album '{album.Title}'.");
+            }
+            _console.WriteLine("* Remove duplication ended");
         }
     }
 }

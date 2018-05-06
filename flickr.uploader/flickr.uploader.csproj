@@ -60,8 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="domain\Album.cs" />
+    <Compile Include="domain\Authenticate\AuthenticateCommand.cs" />
+    <Compile Include="domain\Authenticate\AuthenticateCommandHandler.cs" />
     <Compile Include="domain\CreateNewAlbum\CreateNewAlbumCommandHandler.cs" />
-    <Compile Include="domain\FlickrAuthenticatedCommand.cs" />
     <Compile Include="domain\CreateNewAlbum\CreateNewAlbumCommand.cs" />
     <Compile Include="domain\OutputId.cs" />
     <Compile Include="infrastructure\Console.cs" />

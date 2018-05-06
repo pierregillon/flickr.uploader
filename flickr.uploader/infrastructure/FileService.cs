@@ -40,5 +40,9 @@ namespace flickr.uploader.infrastructure
             var json = JsonConvert.SerializeObject(obj, Formatting.Indented);
             File.WriteAllText(filePath, json);
         }
+        public bool Exists(string filePath)
+        {
+            return File.Exists(filePath);
+        }
     }
 }

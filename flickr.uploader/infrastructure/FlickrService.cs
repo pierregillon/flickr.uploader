@@ -12,23 +12,21 @@ namespace flickr.uploader.infrastructure
     public class FlickrService : IFlickrService
     {
         private readonly IConsole _console;
-        private readonly IFileService _fileService;
         private Flickr _flickr;
         private readonly List<double> _lastSpeeds = new List<double> { 0 };
         private double _lastBytesSent = 0;
         private readonly Stopwatch _watch = new Stopwatch();
 
         // ----- Constructor
-        public FlickrService(IConsole console, IFileService fileService)
+        public FlickrService(IConsole console)
         {
             _console = console;
-            _fileService = fileService;
         }
 
         // ----- Public methods
-        public void Authenticate(string apiKey, string apiSecret)
+        public void Authenticate(Flickr flickr)
         {
-            _flickr = GetAuthentifiedFlickrClient(apiKey, apiSecret);
+            _flickr = flickr;
             _flickr.OnUploadProgress += FlickrOnOnUploadProgress;
         }
         public Album GetAlbum(string albumId)
@@ -47,6 +45,8 @@ namespace flickr.uploader.infrastructure
         }
         public void AddMediaFileInAlbum(MediaFile mediaFile, Album album)
         {
+            CheckFlickrInitialized();
+
             var photoId = UploadMediaFile(mediaFile);
             var position = _console.Write(" Adding in the album ... ");
             _flickr.PhotosetsAddPhoto(album.Id, photoId);
@@ -54,10 +54,14 @@ namespace flickr.uploader.infrastructure
         }
         public void DeletePhoto(Photo photo)
         {
+            CheckFlickrInitialized();
+
             _flickr.PhotosDelete(photo.Id);
         }
         public string CreateAlbum(string albumName)
         {
+            CheckFlickrInitialized();
+
             var photoSet = _flickr.PhotosetsCreate(albumName, "P1040475.JPG");
             _flickr.PhotosetsRemovePhoto(photoSet.PhotosetId, "P1040475.JPG");
             return photoSet.PhotosetId;
@@ -130,65 +134,7 @@ namespace flickr.uploader.infrastructure
             }
             return photoId;
         }
-        private Flickr GetAuthentifiedFlickrClient(string apiKey, string apiSecret)
-        {
-            const string tokenFilePath = ".flickr";
-            if (!File.Exists(tokenFilePath)) {
-                return CreateNewFlickrClient(apiKey, apiSecret, tokenFilePath);
-            }
-            try {
-                return CreateFlickrClientFromExistingToken(apiKey, apiSecret, tokenFilePath);
-            }
-            catch (OAuthException) {
-                return CreateNewFlickrClient(apiKey, apiSecret, tokenFilePath);
-            }
-        }
-        private Flickr CreateFlickrClientFromExistingToken(string apiKey, string apiSecret, string tokenFilePath)
-        {
-            return _console.StartOperation(
-                $"* Reading token from '{tokenFilePath}' file ... ",
-                () => {
-                    var accesToken = _fileService.Deserialize<OAuthAccessToken>(tokenFilePath);
-                    var flickr = new Flickr(apiKey, apiSecret) {
-                        OAuthAccessToken = accesToken.Token,
-                        OAuthAccessTokenSecret = accesToken.TokenSecret
-                    };
-                    flickr.AuthOAuthCheckToken();
-                    return flickr;
-                });
-        }
-        private Flickr CreateNewFlickrClient(string apiKey, string apiSecret, string tokenFilePath)
-        {
-            var flickr = new Flickr(apiKey, apiSecret);
-            var accesToken = CreateNewAccessToken(flickr);
-            flickr.OAuthAccessToken = accesToken.Token;
-            flickr.OAuthAccessTokenSecret = accesToken.TokenSecret;
-            _fileService.Serialize(accesToken, tokenFilePath);
-            _console.WriteLine($"* Access token saved in '{tokenFilePath}' file.");
-            return flickr;
-        }
-        private OAuthAccessToken CreateNewAccessToken(Flickr flickr)
-        {
-            _console.WriteLine("* Creation of a new token.");
-            var requestToken = flickr.OAuthGetRequestToken("oob");
-            var url = flickr.OAuthCalculateAuthorizationUrl(requestToken.Token, AuthLevel.Delete);
-            _console.Write("* Opening browser ... ");
-            Process.Start(url)?.WaitForExit();
-            _console.WriteLine("[DONE]");
-
-            while (true) {
-                try {
-                    _console.Write("* Type the Flickr verifier code : ");
-                    var verifier = _console.ReadLine();
-                    var accessToken = flickr.OAuthGetAccessToken(requestToken, verifier);
-                    _console.WriteLine("* New access token acquired.");
-                    return accessToken;
-                }
-                catch (OAuthException) {
-                    _console.WriteLine("=> ERROR");
-                }
-            }
-        }
+        
 
         // ----- Utils
         private static string ToBetterUnit(long bytes)
