@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace flickr.uploader.domain.UploadFolder
 {
-    public class UploadFolderToFlickrCommandHandler
+    public class UploadFolderToFlickrCommandHandler : ICommandHandler<UploadFolderToFlickrCommand>
     {
         private readonly IFlickrService _flickrService;
         private readonly IFileService _fileService;

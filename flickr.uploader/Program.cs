@@ -6,6 +6,7 @@ using flickr.uploader.domain.Removeduplication;
 using flickr.uploader.domain.UploadFolder;
 using flickr.uploader.infrastructure;
 using StructureMap;
+using Console = flickr.uploader.infrastructure.Console;
 
 namespace flickr.uploader
 {
@@ -17,51 +18,42 @@ namespace flickr.uploader
                 x.For<IConsole>().Use<Console>();
                 x.For<IFileService>().Use<FileService>();
                 x.For<IFlickrService>().Use<FlickrService>().Singleton();
+                x.Scan(a => {
+                    a.WithDefaultConventions();
+                    a.AssemblyContainingType(typeof(ICommandHandler<>));
+                    a.AddAllTypesOf(typeof(ICommandHandler<>));
+                });
+                x.Scan(a => {
+                    a.WithDefaultConventions();
+                    a.AssemblyContainingType(typeof(ICommandHandler<,>));
+                    a.AddAllTypesOf(typeof(ICommandHandler<,>));
+                });
             });
 
             Parser.Default.ParseArguments<Options>(args)
                   .WithParsed(options => {
-                      Authenticate(container, options);
-                      if (string.IsNullOrEmpty(options.PhotoSetId)) {
-                          options.PhotoSetId = CreateNewAlbum(container);
-                      }
-                      UploadFolder(container, options);
-                      RemoveDuplication(container, options);
+                      var dispatcher = container.GetInstance<CommandDispatcher>();
+                      Process(dispatcher, options);
                   });
         }
 
-        // ----- Internal logic
-        private static void Authenticate(IContainer container, Options options)
+        private static void Process(CommandDispatcher dispatcher, Options options)
         {
-            var handler = container.GetInstance<AuthenticateCommandHandler>();
-            var command = new AuthenticateCommand {
+            dispatcher.Dispatch(new AuthenticateCommand {
                 ApiKey = options.ApiKey,
                 ApiSecret = options.ApiSecret
-            };
-            handler.Handle(command);
-        }
-        private static string CreateNewAlbum(IContainer container)
-        {
-            var handler = container.GetInstance<CreateNewAlbumCommandHandler>();
-            var command = new CreateNewAlbumCommand();
-            return handler.Handle(command);
-        }
-        private static void UploadFolder(IContainer container, Options options)
-        {
-            var handler = container.GetInstance<UploadFolderToFlickrCommandHandler>();
-            var command = new UploadFolderToFlickrCommand {
+            });
+            if (string.IsNullOrEmpty(options.PhotoSetId)) {
+                dispatcher.Dispatch(new CreateNewAlbumCommand());
+                options.PhotoSetId = "";
+            }
+            dispatcher.Dispatch(new UploadFolderToFlickrCommand {
                 AlbumId = options.PhotoSetId,
                 LocalFolder = options.LocalFolder
-            };
-            handler.Handle(command);
-        }
-        private static void RemoveDuplication(IContainer container, Options options)
-        {
-            var handler = container.GetInstance<RemoveDuplicationInAlbumCommandHandler>();
-            var command = new RemoveDuplicationInAlbumCommand() {
+            });
+            dispatcher.Dispatch(new RemoveDuplicationInAlbumCommand() {
                 AlbumId = options.PhotoSetId,
-            };
-            handler.Handle(command);
+            });
         }
     }
 }

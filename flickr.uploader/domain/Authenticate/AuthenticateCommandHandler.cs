@@ -3,7 +3,7 @@ using FlickrNet;
 
 namespace flickr.uploader.domain.Authenticate
 {
-    public class AuthenticateCommandHandler
+    public class AuthenticateCommandHandler : ICommandHandler<AuthenticateCommand>
     {
         private const string TOKEN_FILE_PATH = ".flickr";
 

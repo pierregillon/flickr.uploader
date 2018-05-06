@@ -59,12 +59,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="application\CommandDispatcher.cs" />
     <Compile Include="domain\Album.cs" />
     <Compile Include="domain\Authenticate\AuthenticateCommand.cs" />
     <Compile Include="domain\Authenticate\AuthenticateCommandHandler.cs" />
     <Compile Include="domain\CreateNewAlbum\CreateNewAlbumCommandHandler.cs" />
     <Compile Include="domain\CreateNewAlbum\CreateNewAlbumCommand.cs" />
     <Compile Include="domain\OutputId.cs" />
+    <Compile Include="application\ICommandHandler.cs" />
     <Compile Include="infrastructure\Console.cs" />
     <Compile Include="infrastructure\FileService.cs" />
     <Compile Include="domain\IConsole.cs" />

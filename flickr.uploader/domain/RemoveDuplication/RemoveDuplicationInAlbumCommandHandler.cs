@@ -2,7 +2,7 @@ using System.Linq;
 
 namespace flickr.uploader.domain.Removeduplication
 {
-    public class RemoveDuplicationInAlbumCommandHandler
+    public class RemoveDuplicationInAlbumCommandHandler : ICommandHandler<RemoveDuplicationInAlbumCommand>
     {
         private readonly IConsole _console;
         private readonly IFlickrService _flickrService;
