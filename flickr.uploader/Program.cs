@@ -44,8 +44,8 @@ namespace flickr.uploader
                 ApiSecret = options.ApiSecret
             });
             if (string.IsNullOrEmpty(options.PhotoSetId)) {
-                dispatcher.Dispatch(new CreateNewAlbumCommand());
-                options.PhotoSetId = "";
+                var photosetId = dispatcher.Dispatch<CreateNewAlbumCommand, string>(new CreateNewAlbumCommand());
+                options.PhotoSetId = photosetId;
             }
             dispatcher.Dispatch(new UploadFolderToFlickrCommand {
                 AlbumId = options.PhotoSetId,

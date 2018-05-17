@@ -62,9 +62,11 @@ namespace flickr.uploader.infrastructure
         {
             CheckFlickrInitialized();
 
-            var photoSet = _flickr.PhotosetsCreate(albumName, "P1040475.JPG");
-            _flickr.PhotosetsRemovePhoto(photoSet.PhotosetId, "P1040475.JPG");
-            return photoSet.PhotosetId;
+            var existingPhotoSet = _flickr.PhotosetsGetPhotos("72157696449248275");
+            var tempPhotoId = existingPhotoSet[0].PhotoId;
+            var newPhotoSet = _flickr.PhotosetsCreate(albumName, tempPhotoId);
+            //_flickr.PhotosetsRemovePhoto(photoSet.PhotosetId, tempPhotoId);
+            return newPhotoSet.PhotosetId;
         }
 
         // ----- Callbacks
