@@ -14,6 +14,7 @@ namespace flickr.uploader.infrastructure
         private readonly IConsole _console;
         private Flickr _flickr;
         private readonly Stopwatch _watch = new Stopwatch();
+        private OutputId _lastOuput;
 
         // ----- Constructor
         public FlickrService(IConsole console)
@@ -71,20 +72,20 @@ namespace flickr.uploader.infrastructure
         // ----- Callbacks
         private void FlickrOnOnUploadProgress(object sender, UploadProgressEventArgs args)
         {
-            const int rowWidth = 40;
             if (args.UploadComplete) {
-                const string clean = " ";
-                _console.Write(clean.PadRight(rowWidth));
-                if (_console.CursorLeft - (rowWidth - clean.Length) > 0) {
-                    _console.SetCursorPosition(_console.CursorLeft - (rowWidth - clean.Length), _console.CursorTop);
+                if (_lastOuput != null) {
+                    _console.Clean(_lastOuput);
                 }
                 _watch.Stop();
             }
             else {
                 var speed = args.BytesSent / _watch.ElapsedMilliseconds * 1000;
-                var format = $"{args.ProcessPercentage} % ({args.BytesSent.ToOctets()} on {args.TotalBytesToSend.ToOctets()} - {speed.ToOctets()}/s)".PadRight(rowWidth);
-                _console.Write(format);
-                _console.SetCursorPosition(_console.CursorLeft - format.Length, _console.CursorTop);
+                var timeRemaining = speed == 0 ? TimeSpan.Zero : TimeSpan.FromSeconds((args.TotalBytesToSend - args.BytesSent) / speed);
+                var ouput = $"{args.ProcessPercentage} % ({args.BytesSent.ToOctets()} on {args.TotalBytesToSend.ToOctets()} - {speed.ToOctets()}/s, time remaning {timeRemaining})";
+                if (_lastOuput != null) {
+                    _console.Clean(_lastOuput);
+                }
+                _lastOuput = _console.Write(ouput);
             }
         }
 
@@ -125,7 +126,6 @@ namespace flickr.uploader.infrastructure
             }
             return photoId;
         }
-
     }
 
     public static class OctetExtensions
