@@ -79,6 +79,7 @@
     <Compile Include="domain\RemoveDuplication\RemoveDuplicationInAlbumCommand.cs" />
     <Compile Include="domain\RemoveDuplication\RemoveDuplicationInAlbumCommandHandler.cs" />
     <Compile Include="domain\UploadFolder\UploadFolderToFlickrCommand.cs" />
+    <Compile Include="infrastructure\OctetExtensions.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
