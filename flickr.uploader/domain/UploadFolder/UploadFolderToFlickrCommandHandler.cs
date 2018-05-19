@@ -77,10 +77,12 @@ namespace flickr.uploader.domain.UploadFolder
         }
         private void AddMediaFilesInFlickrAlbum(IEnumerable<MediaFile> mediaFilesFiltered, Album album)
         {
-            foreach (var mediaFile in mediaFilesFiltered) {
+            var data = mediaFilesFiltered.ToArray();
+            for (var index = 0; index < data.Length; index++) {
+                var mediaFile = data[index];
                 try {
                     _console.StartOperation(
-                        $"* Uploading '{mediaFile.FileName}' ... ",
+                        $"* [{DateTime.Now}] {index + 1}/{data.Length} Uploading '{mediaFile.FileName}' ... ",
                         () => _flickrService.AddMediaFileInAlbum(mediaFile, album));
                 }
                 catch (Exception) {
