@@ -93,7 +93,7 @@ namespace flickr.uploader.infrastructure
                 _lastBytesSent = args.BytesSent;
                 _watch.Restart();
 
-                var format = $"{args.ProcessPercentage} % ({ToBetterUnit(args.BytesSent)} on {ToBetterUnit(args.TotalBytesToSend)} - {ToBetterUnit((long) _lastSpeeds.Average(x => x))}/s)".PadRight(rowWidth);
+                var format = $"{args.ProcessPercentage} % ({args.BytesSent.ToOctets()} on {args.TotalBytesToSend.ToOctets()} - {_lastSpeeds.Average(x => x).ToOctets()}/s)".PadRight(rowWidth);
                 _console.Write(format);
                 _console.SetCursorPosition(_console.CursorLeft - format.Length, _console.CursorTop);
             }
@@ -136,25 +136,31 @@ namespace flickr.uploader.infrastructure
             }
             return photoId;
         }
-        
 
-        // ----- Utils
-        private static string ToBetterUnit(long bytes)
+    }
+
+    public static class OctetExtensions
+    {
+        public static string ToOctets(this double value)
+        {
+            return ToOctets((long) value);
+        }
+        public static string ToOctets(this long value)
         {
             var _1_KO = Math.Pow(2, 10);
             var _1_MO = Math.Pow(2, 20);
             var _1_GO = Math.Pow(2, 30);
 
-            if (bytes >= _1_GO) {
-                return $"{Math.Round(bytes / _1_GO)} Go";
+            if (value >= _1_GO) {
+                return $"{Math.Round(value / _1_GO, 1)} Go";
             }
-            if (bytes >= _1_MO) {
-                return $"{Math.Round(bytes / _1_MO)} Mo";
+            if (value >= _1_MO) {
+                return $"{Math.Round(value / _1_MO, 1)} Mo";
             }
-            if (bytes >= _1_KO) {
-                return $"{Math.Round(bytes / _1_KO)} Ko";
+            if (value >= _1_KO) {
+                return $"{Math.Round(value / _1_KO, 1)} Ko";
             }
-            return $"{bytes} o";
+            return $"{value} o";
         }
     }
 }

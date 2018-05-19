@@ -90,10 +90,9 @@ namespace flickr.uploader.domain.UploadFolder
                 }
             }
         }
-        private static bool ConfirmOperationByUser(IReadOnlyCollection<MediaFile> mediaFilesFiltered)
+        private bool ConfirmOperationByUser(IReadOnlyCollection<MediaFile> mediaFilesFiltered)
         {
-            Console.Write($"* {mediaFilesFiltered.Count} media files to upload. Continue? (y/n) => ");
-            return Console.ReadLine() == "y";
+            return _console.ReadLine($"* {mediaFilesFiltered.Count} media files to upload. Continue? (y/n) => ") == "y";
         }
         private static string Normalize(string input)
         {
