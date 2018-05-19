@@ -13,8 +13,6 @@ namespace flickr.uploader.infrastructure
     {
         private readonly IConsole _console;
         private Flickr _flickr;
-        private readonly List<double> _lastSpeeds = new List<double> { 0 };
-        private double _lastBytesSent = 0;
         private readonly Stopwatch _watch = new Stopwatch();
 
         // ----- Constructor
@@ -47,6 +45,7 @@ namespace flickr.uploader.infrastructure
         {
             CheckFlickrInitialized();
 
+            _watch.Restart();
             var photoId = UploadMediaFile(mediaFile);
             var position = _console.Write(" Adding in the album ... ");
             _flickr.PhotosetsAddPhoto(album.Id, photoId);
@@ -74,26 +73,16 @@ namespace flickr.uploader.infrastructure
         {
             const int rowWidth = 40;
             if (args.UploadComplete) {
-                var clean = " ";
+                const string clean = " ";
                 _console.Write(clean.PadRight(rowWidth));
                 if (_console.CursorLeft - (rowWidth - clean.Length) > 0) {
                     _console.SetCursorPosition(_console.CursorLeft - (rowWidth - clean.Length), _console.CursorTop);
                 }
+                _watch.Stop();
             }
             else {
-                if (_lastBytesSent != 0) {
-                    var bytesSentInOperation = args.BytesSent - _lastBytesSent;
-                    var ellapsedSeconds = _watch.Elapsed.TotalSeconds;
-                    var bytesPerSeconds = bytesSentInOperation / ellapsedSeconds;
-                    _lastSpeeds.Add(bytesPerSeconds);
-                    if (_lastSpeeds.Count > 30) {
-                        _lastSpeeds.RemoveAt(0);
-                    }
-                }
-                _lastBytesSent = args.BytesSent;
-                _watch.Restart();
-
-                var format = $"{args.ProcessPercentage} % ({args.BytesSent.ToOctets()} on {args.TotalBytesToSend.ToOctets()} - {_lastSpeeds.Average(x => x).ToOctets()}/s)".PadRight(rowWidth);
+                var speed = args.BytesSent / _watch.ElapsedMilliseconds * 1000;
+                var format = $"{args.ProcessPercentage} % ({args.BytesSent.ToOctets()} on {args.TotalBytesToSend.ToOctets()} - {speed.ToOctets()}/s)".PadRight(rowWidth);
                 _console.Write(format);
                 _console.SetCursorPosition(_console.CursorLeft - format.Length, _console.CursorTop);
             }
