@@ -43,16 +43,16 @@ namespace flickr.uploader
                 ApiKey = options.ApiKey,
                 ApiSecret = options.ApiSecret
             });
-            if (string.IsNullOrEmpty(options.PhotoSetId)) {
-                var photosetId = dispatcher.Dispatch<CreateNewAlbumCommand, string>(new CreateNewAlbumCommand());
-                options.PhotoSetId = photosetId;
-            }
+            //if (string.IsNullOrEmpty(options.PhotoSetId)) {
+            //    var photosetId = dispatcher.Dispatch<CreateNewAlbumCommand, string>(new CreateNewAlbumCommand());
+            //    options.PhotoSetId = photosetId;
+            //}
             dispatcher.Dispatch(new UploadFolderToFlickrCommand {
-                AlbumId = options.PhotoSetId,
+                AlbumName = options.PhotoSetName,
                 LocalFolder = options.LocalFolder
             });
             dispatcher.Dispatch(new RemoveDuplicationInAlbumCommand() {
-                AlbumId = options.PhotoSetId,
+                AlbumId = options.PhotoSetName,
             });
         }
     }

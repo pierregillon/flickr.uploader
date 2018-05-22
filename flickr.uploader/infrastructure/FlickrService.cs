@@ -23,11 +23,6 @@ namespace flickr.uploader.infrastructure
         }
 
         // ----- Public methods
-        public void Authenticate(Flickr flickr)
-        {
-            _flickr = flickr;
-            _flickr.OnUploadProgress += FlickrOnOnUploadProgress;
-        }
         public Album GetAlbum(string albumId)
         {
             CheckFlickrInitialized();
@@ -41,6 +36,18 @@ namespace flickr.uploader.infrastructure
                     Title = x.Title
                 })
             };
+        }
+        public Album[] GetAlbums(string albumName)
+        {
+            CheckFlickrInitialized();
+            var collection = _flickr.PhotosetsGetList();
+            var albums = collection.Where(x => x.Title.ToLower().Contains(albumName.ToLower()));
+            return albums.Select(x => GetAlbum(x.PhotosetId)).ToArray();
+        }
+        public void Authenticate(Flickr flickr)
+        {
+            _flickr = flickr;
+            _flickr.OnUploadProgress += FlickrOnOnUploadProgress;
         }
         public void AddMediaFileInAlbum(MediaFile mediaFile, Album album)
         {

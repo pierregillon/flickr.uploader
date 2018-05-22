@@ -25,7 +25,7 @@ namespace flickr.uploader.domain.UploadFolder
         // ----- Public methods
         public void Handle(UploadFolderToFlickrCommand command)
         {
-            var album = LoadAlbum(command.AlbumId);
+            var album = LoadAlbum(command.AlbumName);
             var mediaFiles = ReadLocalFolder(command.LocalFolder);
             var mediaFilesFiltered = FilterOnlyNotAlreadyUploaded(mediaFiles, album);
 
@@ -36,11 +36,24 @@ namespace flickr.uploader.domain.UploadFolder
         }
 
         // ----- Internal logics
-        private Album LoadAlbum(string albumId)
+        private Album LoadAlbum(string albumName)
         {
-            return _console.StartOperation(
-                $"* Loading album '{albumId}' ... ",
-                () => _flickrService.GetAlbum(albumId));
+            var albums = _console.StartOperation(
+                $"* Loading album '{albumName}' ... ",
+                () => _flickrService.GetAlbums(albumName));
+
+            if (albums.Length == 1) {
+                return albums.Single();
+            }
+            else {
+                _console.WriteLine($"* {albums.Length} founds for the name '{albumName}'.");
+                for (var index= 0; index < albums.Length; index++) {
+                    var album = albums[index];
+                    _console.WriteLine($"\t{index + 1}. {album.Title}");
+                }
+                var albumIndex = _console.ReadLine("* Which album do you want to use? => ");
+                return albums[int.Parse(albumIndex) - 1];
+            }
         }
         private IReadOnlyCollection<MediaFile> ReadLocalFolder(string localFolderPath)
         {
