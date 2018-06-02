@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using flickr.uploader.application;
 using FlickrNet;
 
 namespace flickr.uploader.domain.Authenticate

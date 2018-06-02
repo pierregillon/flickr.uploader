@@ -1,4 +1,6 @@
-﻿namespace flickr.uploader.domain.CreateNewAlbum
+﻿using flickr.uploader.application;
+
+namespace flickr.uploader.domain.CreateNewAlbum
 {
     public class CreateNewAlbumCommandHandler : ICommandHandler<CreateNewAlbumCommand, string>
     {

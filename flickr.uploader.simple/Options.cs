@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace flickr.uploader
+namespace flickr.uploader.simple
 {
     public class Options
     {

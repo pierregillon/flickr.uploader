@@ -1,6 +1,7 @@
 using System.Linq;
+using flickr.uploader.application;
 
-namespace flickr.uploader.domain.Removeduplication
+namespace flickr.uploader.domain.RemoveDuplication
 {
     public class RemoveDuplicationInAlbumCommandHandler : ICommandHandler<RemoveDuplicationInAlbumCommand>
     {

@@ -1,4 +1,4 @@
-﻿namespace flickr.uploader.domain.Removeduplication
+﻿namespace flickr.uploader.domain.RemoveDuplication
 {
     public class RemoveDuplicationInAlbumCommand
     {

@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using StructureMap;
 
-namespace flickr.uploader
+namespace flickr.uploader.application
 {
     public class CommandDispatcher
     {

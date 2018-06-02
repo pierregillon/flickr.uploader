@@ -1,18 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CED92553-E93C-40F6-8C12-09546CEEF163}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{CF802B2C-C0AA-4684-9FA7-8C463DC8AE11}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>flickr.uploader</RootNamespace>
-    <AssemblyName>flickr.uploader</AssemblyName>
+    <RootNamespace>flickr.uploader.simple</RootNamespace>
+    <AssemblyName>flickr.uploader.simple</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,14 +34,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine, Version=2.2.1.0, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineParser.2.2.1\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FlickrNet, Version=3.25.0.0, Culture=neutral, PublicKeyToken=2491df59efa5d132, processorArchitecture=MSIL">
       <HintPath>..\packages\FlickrNet.3.25.0\lib\net20\FlickrNet.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="StructureMap, Version=4.6.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\StructureMap.4.6.1\lib\net45\StructureMap.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,33 +60,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="application\CommandDispatcher.cs" />
-    <Compile Include="application\ICommandHandler.cs" />
-    <Compile Include="Class1.cs" />
-    <Compile Include="domain\Album.cs" />
-    <Compile Include="domain\Authenticate\AuthenticateCommand.cs" />
-    <Compile Include="domain\Authenticate\AuthenticateCommandHandler.cs" />
-    <Compile Include="domain\CreateNewAlbum\CreateNewAlbumCommand.cs" />
-    <Compile Include="domain\CreateNewAlbum\CreateNewAlbumCommandHandler.cs" />
-    <Compile Include="domain\IConsole.cs" />
-    <Compile Include="domain\IFileService.cs" />
-    <Compile Include="domain\IFlickrService.cs" />
-    <Compile Include="domain\MediaFile.cs" />
-    <Compile Include="domain\MediaTypes.cs" />
-    <Compile Include="domain\OutputId.cs" />
-    <Compile Include="domain\Photo.cs" />
-    <Compile Include="domain\RemoveDuplication\RemoveDuplicationInAlbumCommand.cs" />
-    <Compile Include="domain\RemoveDuplication\RemoveDuplicationInAlbumCommandHandler.cs" />
-    <Compile Include="domain\UploadFolder\UploadFolderToFlickrCommand.cs" />
-    <Compile Include="domain\UploadFolder\UploadFolderToFlickrCommandHandler.cs" />
-    <Compile Include="infrastructure\Console.cs" />
-    <Compile Include="infrastructure\FileService.cs" />
-    <Compile Include="infrastructure\FlickrService.cs" />
-    <Compile Include="infrastructure\OctetExtensions.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="App.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\flickr.uploader\flickr.uploader.csproj">
+      <Project>{ced92553-e93c-40f6-8c12-09546ceef163}</Project>
+      <Name>flickr.uploader</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

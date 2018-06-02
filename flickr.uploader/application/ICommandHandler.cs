@@ -1,4 +1,4 @@
-﻿namespace flickr.uploader
+﻿namespace flickr.uploader.application
 {
     public interface ICommandHandler<in T>
     {

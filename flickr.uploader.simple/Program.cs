@@ -1,14 +1,15 @@
 ﻿using CommandLine;
+using flickr.uploader.application;
 using flickr.uploader.domain;
 using flickr.uploader.domain.Authenticate;
 using flickr.uploader.domain.CreateNewAlbum;
-using flickr.uploader.domain.Removeduplication;
+using flickr.uploader.domain.RemoveDuplication;
 using flickr.uploader.domain.UploadFolder;
 using flickr.uploader.infrastructure;
 using StructureMap;
 using Console = flickr.uploader.infrastructure.Console;
 
-namespace flickr.uploader
+namespace flickr.uploader.simple
 {
     class Program
     {
