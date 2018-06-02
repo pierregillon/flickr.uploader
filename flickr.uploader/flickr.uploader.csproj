@@ -51,7 +51,6 @@
   <ItemGroup>
     <Compile Include="application\CommandDispatcher.cs" />
     <Compile Include="application\ICommandHandler.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="domain\Album.cs" />
     <Compile Include="domain\Authenticate\AuthenticateCommand.cs" />
     <Compile Include="domain\Authenticate\AuthenticateCommandHandler.cs" />
