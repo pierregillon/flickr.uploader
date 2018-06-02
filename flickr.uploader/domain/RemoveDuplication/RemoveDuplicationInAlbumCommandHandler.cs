@@ -15,9 +15,20 @@ namespace flickr.uploader.domain.Removeduplication
             _flickrService = flickrService;
         }
 
+        // ----- Public methods
         public void Handle(RemoveDuplicationInAlbumCommand command)
         {
             var album = _flickrService.GetAlbum(command.AlbumId);
+
+            RemoveTemporaryPhotoToCreateAlbum(album);
+            RemoveDuplicatedPhotos(album);
+
+            _console.WriteLine("* Remove duplication ended");
+        }
+
+        // ----- Internal logics
+        private void RemoveDuplicatedPhotos(Album album)
+        {
             var duplicatedPhotoGroups = album.Photos.GroupBy(x => x.Title).Where(x => x.Count() > 1).ToArray();
             if (duplicatedPhotoGroups.Any()) {
                 _console.WriteLine($"* {duplicatedPhotoGroups.Length} duplicated media files found in the album {album.Title}.");
@@ -30,13 +41,22 @@ namespace flickr.uploader.domain.Removeduplication
                                 () => _flickrService.DeletePhoto(photo));
                         }
                     }
+
                     _console.WriteLine("* Album cleaned.");
                 }
             }
             else {
-                _console.WriteLine($"* No duplication found on the album '{album.Title}'.");
+                _console.WriteLine($"* No duplication found in the album '{album.Title}'.");
             }
-            _console.WriteLine("* Remove duplication ended");
+        }
+        private void RemoveTemporaryPhotoToCreateAlbum(Album album)
+        {
+            var temporaryPhotoToCreateTheAlbum = album.Photos.FirstOrDefault(x => x.Id == "72157696449248275");
+            if (temporaryPhotoToCreateTheAlbum != null) {
+                _console.StartOperation(
+                    $"* Deleting temporary photo '{temporaryPhotoToCreateTheAlbum.Id}' ... ",
+                    () => _flickrService.DeletePhoto(temporaryPhotoToCreateTheAlbum));
+            }
         }
     }
 }
