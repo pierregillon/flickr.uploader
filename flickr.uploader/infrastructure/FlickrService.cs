@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using flickr.uploader.domain;
 using FlickrNet;
 using Photo = flickr.uploader.domain.Photo;
@@ -41,6 +42,13 @@ namespace flickr.uploader.infrastructure
                     Title = x.Title
                 })
             };
+        }
+        public string FindAlbumIdFromName(string albumName)
+        {
+            CheckFlickrInitialized();
+            var photoSets = _flickr.PhotosetsGetList();
+            var photoSet = photoSets.FirstOrDefault(x => x.Title == albumName);
+            return photoSet?.PhotosetId;
         }
         public void AddMediaFileInAlbum(MediaFile mediaFile, Album album)
         {

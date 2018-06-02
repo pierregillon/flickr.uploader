@@ -50,10 +50,12 @@ namespace flickr.uploader.simple
             }
             dispatcher.Dispatch(new UploadFolderToFlickrCommand {
                 AlbumId = options.PhotoSetId,
-                LocalFolder = options.LocalFolder
+                LocalFolder = options.LocalFolder,
+                PromptUserConfirmation = true
             });
             dispatcher.Dispatch(new RemoveDuplicationInAlbumCommand() {
                 AlbumId = options.PhotoSetId,
+                PromptUserConfirmation = true
             });
         }
     }

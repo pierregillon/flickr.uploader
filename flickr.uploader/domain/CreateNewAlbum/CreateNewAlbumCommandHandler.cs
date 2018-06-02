@@ -17,7 +17,7 @@ namespace flickr.uploader.domain.CreateNewAlbum
 
         public string Handle(CreateNewAlbumCommand command)
         {
-            var albumName = _console.ReadLine("* Choose a name for the new album => ");
+            var albumName = command.AlbumName ?? _console.ReadLine("* Choose a name for the new album => ");
             return _console.StartOperation(
                 $"* Creating album '{albumName}' ... ",
                 () => _flickrService.CreateAlbum(albumName)

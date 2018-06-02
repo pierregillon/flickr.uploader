@@ -31,7 +31,7 @@ namespace flickr.uploader.domain.UploadFolder
             var mediaFilesFiltered = FilterOnlyNotAlreadyUploaded(mediaFiles, album);
 
             PrintStatement(command, album, mediaFiles, mediaFilesFiltered);
-            ProcessFolder(mediaFilesFiltered, album);
+            ProcessFolder(mediaFilesFiltered, album, command.PromptUserConfirmation);
 
             _console.WriteLine("* Upload folder ended");
         }
@@ -65,10 +65,10 @@ namespace flickr.uploader.domain.UploadFolder
             _console.WriteLine($"* Album is '{album.Title}' and contains {album.Photos.Count()} media files.");
             _console.WriteLine($"* Folder '{command.LocalFolder}' contains {mediaFiles.Count} media files with {mediaFiles.Count - mediaFilesFiltered.Count} already uploaded.");
         }
-        private void ProcessFolder(IReadOnlyCollection<MediaFile> mediaFilesFiltered, Album album)
+        private void ProcessFolder(IReadOnlyCollection<MediaFile> mediaFilesFiltered, Album album, bool promptUserConfirmation)
         {
             if (mediaFilesFiltered.Any()) {
-                if (ConfirmOperationByUser(mediaFilesFiltered)) {
+                if (!promptUserConfirmation || ConfirmOperationByUser(mediaFilesFiltered)) {
                     AddMediaFilesInFlickrAlbum(mediaFilesFiltered, album);
                 }
             }

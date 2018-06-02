@@ -22,19 +22,18 @@ namespace flickr.uploader.domain.RemoveDuplication
             var album = _flickrService.GetAlbum(command.AlbumId);
 
             RemoveTemporaryPhotoToCreateAlbum(album);
-            RemoveDuplicatedPhotos(album);
+            RemoveDuplicatedPhotos(album, command.PromptUserConfirmation);
 
             _console.WriteLine("* Remove duplication ended");
         }
 
         // ----- Internal logics
-        private void RemoveDuplicatedPhotos(Album album)
+        private void RemoveDuplicatedPhotos(Album album, bool promptUserConfirmation)
         {
             var duplicatedPhotoGroups = album.Photos.GroupBy(x => x.Title).Where(x => x.Count() > 1).ToArray();
             if (duplicatedPhotoGroups.Any()) {
                 _console.WriteLine($"* {duplicatedPhotoGroups.Length} duplicated media files found in the album {album.Title}.");
-                _console.Write("* Do you want to clean them up? (y/n) => ");
-                if (_console.ReadLine() == "y") {
+                if (!promptUserConfirmation || ConfirmOperationByUser()) {
                     foreach (var duplicatedPhotos in duplicatedPhotoGroups) {
                         foreach (var photo in duplicatedPhotos.Skip(1)) {
                             _console.StartOperation(
@@ -49,6 +48,10 @@ namespace flickr.uploader.domain.RemoveDuplication
             else {
                 _console.WriteLine($"* No duplication found in the album '{album.Title}'.");
             }
+        }
+        private bool ConfirmOperationByUser()
+        {
+            return _console.ReadLine("* Do you want to clean them up? (y/n) => ") == "y";
         }
         private void RemoveTemporaryPhotoToCreateAlbum(Album album)
         {
