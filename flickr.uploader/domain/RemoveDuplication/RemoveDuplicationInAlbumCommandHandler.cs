@@ -55,11 +55,14 @@ namespace flickr.uploader.domain.RemoveDuplication
         }
         private void RemoveTemporaryPhotoToCreateAlbum(Album album)
         {
-            var temporaryPhotoToCreateTheAlbum = album.Photos.FirstOrDefault(x => x.Id == "72157696449248275");
+            var temporaryPhotoToCreateTheAlbum = album.Photos.FirstOrDefault(x => x.Id == "40995656465");
             if (temporaryPhotoToCreateTheAlbum != null) {
                 _console.StartOperation(
-                    $"* Deleting temporary photo '{temporaryPhotoToCreateTheAlbum.Id}' ... ",
+                    $"* Deleting temporary photo '{temporaryPhotoToCreateTheAlbum.Title}' ... ",
                     () => _flickrService.DeletePhoto(temporaryPhotoToCreateTheAlbum));
+            }
+            else {
+                _console.WriteLine("* No temporary photo found.");
             }
         }
     }

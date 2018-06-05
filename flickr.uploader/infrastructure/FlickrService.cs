@@ -32,6 +32,7 @@ namespace flickr.uploader.infrastructure
         public Album GetAlbum(string albumId)
         {
             CheckFlickrInitialized();
+
             var photoSet = _flickr.PhotosetsGetInfo(albumId);
             var allPhotosInAlbum = GetAllPhotosInAlbum(albumId, photoSet);
             return new Album {
@@ -70,9 +71,7 @@ namespace flickr.uploader.infrastructure
         {
             CheckFlickrInitialized();
 
-            var existingPhotoSet = _flickr.PhotosetsGetPhotos("72157696449248275");
-            var tempPhotoId = existingPhotoSet[0].PhotoId;
-            var newPhotoSet = _flickr.PhotosetsCreate(albumName, tempPhotoId);
+            var newPhotoSet = _flickr.PhotosetsCreate(albumName, "40995656465");
             return newPhotoSet.PhotosetId;
         }
 
