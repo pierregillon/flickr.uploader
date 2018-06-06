@@ -11,5 +11,6 @@ namespace flickr.uploader.domain
         void AddMediaFileInAlbum(MediaFile mediaFile, Album album);
         void DeletePhoto(Photo photo);
         string CreateAlbum(string albumName);
+        void RemoveTemporaryPhoto(Album album);
     }
 }

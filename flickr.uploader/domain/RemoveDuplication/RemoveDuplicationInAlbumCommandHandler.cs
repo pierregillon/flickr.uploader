@@ -21,7 +21,8 @@ namespace flickr.uploader.domain.RemoveDuplication
         {
             var album = _flickrService.GetAlbum(command.AlbumId);
 
-            RemoveTemporaryPhotoToCreateAlbum(album);
+            _flickrService.RemoveTemporaryPhoto(album);
+
             RemoveDuplicatedPhotos(album, command.PromptUserConfirmation);
 
             _console.WriteLine("* Remove duplication ended");
@@ -52,18 +53,6 @@ namespace flickr.uploader.domain.RemoveDuplication
         private bool ConfirmOperationByUser()
         {
             return _console.ReadLine("* Do you want to clean them up? (y/n) => ") == "y";
-        }
-        private void RemoveTemporaryPhotoToCreateAlbum(Album album)
-        {
-            var temporaryPhotoToCreateTheAlbum = album.Photos.FirstOrDefault(x => x.Id == "40995656465");
-            if (temporaryPhotoToCreateTheAlbum != null) {
-                _console.StartOperation(
-                    $"* Deleting temporary photo '{temporaryPhotoToCreateTheAlbum.Title}' ... ",
-                    () => _flickrService.DeletePhoto(temporaryPhotoToCreateTheAlbum));
-            }
-            else {
-                _console.WriteLine("* No temporary photo found.");
-            }
         }
     }
 }

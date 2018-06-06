@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using flickr.uploader.domain;
 using FlickrNet;
 using Photo = flickr.uploader.domain.Photo;
@@ -12,6 +11,8 @@ namespace flickr.uploader.infrastructure
 {
     public class FlickrService : IFlickrService
     {
+        private const string TEMPORARY_PHOTO_ID = "41751227641";
+
         private readonly IConsole _console;
         private Flickr _flickr;
         private readonly Stopwatch _watch = new Stopwatch();
@@ -71,8 +72,20 @@ namespace flickr.uploader.infrastructure
         {
             CheckFlickrInitialized();
 
-            var newPhotoSet = _flickr.PhotosetsCreate(albumName, "40995656465");
+            var newPhotoSet = _flickr.PhotosetsCreate(albumName, TEMPORARY_PHOTO_ID);
             return newPhotoSet.PhotosetId;
+        }
+        public void RemoveTemporaryPhoto(Album album)
+        {
+            var temporaryPhotoToCreateTheAlbum = album.Photos.FirstOrDefault(x => x.Id == TEMPORARY_PHOTO_ID);
+            if (temporaryPhotoToCreateTheAlbum != null) {
+                _console.StartOperation(
+                    $"* Deleting temporary photo '{temporaryPhotoToCreateTheAlbum.Title}' ... ",
+                    () => _flickr.PhotosetsRemovePhoto(album.Id, temporaryPhotoToCreateTheAlbum.Id));
+            }
+            else {
+                _console.WriteLine("* No temporary photo found.");
+            }
         }
 
         // ----- Callbacks
