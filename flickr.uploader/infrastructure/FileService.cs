@@ -12,7 +12,7 @@ namespace flickr.uploader.infrastructure
         public IReadOnlyCollection<MediaFile> GetMediaFiles(string folder)
         {
             var photoExtensions = new[] { ".jpg", ".png" };
-            var videoExtensions = new[] { ".mts", ".mp4" };
+            var videoExtensions = new[] { ".mts", ".mp4", ".mov" };
 
             var query = from filePath in Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories)
                         let fileInfo = new FileInfo(filePath)
